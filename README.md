@@ -11,4 +11,18 @@ Afk script for xreading.
 
 ## Known issues
 
-* Does not work when the page is not in the foreground.
+- Does not work when the page is not in the foreground.
+
+## Changelog
+
+- ### v0.2.1
+
+  - Fix bug that did not go to the next page
+
+- ### v0.2
+
+  - Redirect you back when afk detected
+
+- ### v0.1
+
+  - The first available version

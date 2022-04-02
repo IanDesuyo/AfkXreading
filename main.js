@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         AfkXreading
-// @version      0.2
+// @version      0.2.1
 // @description  Afk script for xreading.
 // @author       IanDesuyo
 // @match        https://xreading.com/local/reader/index.php*
@@ -114,7 +114,6 @@ async function getBookStatus() {
   await delay(5000); // wait for the page to load
 
   const closeButton = document.querySelector(".close-book");
-  const nextButton = document.querySelector(".btn.next-slide");
 
   while (true) {
     // check if the book is finished
@@ -140,7 +139,7 @@ async function getBookStatus() {
 
     await delay(waitTime * 1000);
 
-    nextButton.click();
+    document.querySelector(".btn.next-slide").click();
     await delay(5000); // wait for the next page to load
   }
 })();
