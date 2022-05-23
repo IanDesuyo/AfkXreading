@@ -1,14 +1,44 @@
 // ==UserScript==
 // @name         AfkXreading
-// @version      0.2.1
+// @version      0.3.0
 // @description  Afk script for xreading.
 // @author       IanDesuyo
 // @match        https://xreading.com/local/reader/index.php*
-// @match        https://xreading.com/blocks/institution/dashboard.php*
 // @grant        none
 // ==/UserScript==
 
 const wordsPerMinute = 150;
+
+// Kill the continue reading interval
+(function () {
+  window.originalSetInterval = window.setInterval;
+  window.originalClearInterval = window.clearInterval;
+
+  const inactivityTimer = document.querySelector(".inactivityTimer").value;
+
+  window.setInterval = function (func, delay) {
+    if (delay === inactivityTimer) {
+      console.log("Target interval found, killing...");
+      return;
+    }
+    return window.originalSetInterval(func, delay);
+  };
+
+  window.clearInterval = function (timerID) {
+    window.originalClearInterval(timerID);
+  };
+
+  // Kill all events that will cause the interval be triggered
+  ["mousemove", "keydown", "contextmenu"].forEach(type =>
+    window.addEventListener(
+      type,
+      function (e) {
+        e.stopImmediatePropagation();
+      },
+      true
+    )
+  );
+})();
 
 async function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -75,7 +105,7 @@ async function getBookStatus() {
   while (true) {
     // check if the book is finished
     if (closeButton.style.display != "none") {
-      console.log("Book finished...");
+      console.log("Book finished, redirecting to the dashboard...");
       window.location.href = document.querySelector(".coursepageurl").value;
       break;
     }
