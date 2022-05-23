@@ -14,29 +14,6 @@ async function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-function saveState() {
-  const initState = new URLSearchParams(location.search);
-  const section =
-    document.querySelector(".course-section.active")?.getAttribute("secid") ||
-    initState.get("section");
-
-  const signal =
-    document.querySelector(".current_active_signal")?.getAttribute("value") ||
-    initState.get("signal") ||
-    "0";
-
-  const state = {
-    data: {
-      ...Object.fromEntries(initState),
-      section,
-      signal,
-    },
-    lastUpdate: Math.floor(new Date().getTime() / 1000),
-  };
-
-  localStorage.setItem("_afkxreading_state", JSON.stringify(state));
-}
-
 function continueReadingObserver() {
   const observer = new MutationObserver(mutations => {
     mutations.forEach(mutation => {
@@ -88,26 +65,6 @@ async function getBookStatus() {
 }
 
 (async function () {
-  // redirect to reader if user has been redirected to dashboard
-  const pathname = location.pathname;
-  if (pathname.startsWith("/blocks/institution/dashboard.php")) {
-    const current = Math.floor(new Date().getTime() / 1000);
-    const state = JSON.parse(localStorage.getItem("_afkxreading_state"));
-
-    // if state is set and last update is less than 3 minutes ago, redirect to the last page
-    if (state && current < state.lastUpdate + 180) {
-      const { data } = state;
-
-      console.log("Redirecting to last page...");
-      location.assign("https://xreading.com/local/reader/index.php?" + new URLSearchParams(data));
-    } else {
-      console.log("No state found or it's expired.");
-      localStorage.removeItem("_afkxreading_state");
-    }
-
-    return;
-  }
-
   const observer = continueReadingObserver();
   const bookStatus = await getBookStatus();
 
@@ -118,13 +75,10 @@ async function getBookStatus() {
   while (true) {
     // check if the book is finished
     if (closeButton.style.display != "none") {
-      console.log("Book finished, removing state...");
-      localStorage.removeItem("_afkxreading_state");
+      console.log("Book finished...");
+      window.location.href = document.querySelector(".coursepageurl").value;
       break;
     }
-
-    // save state to prevent the script from stopping
-    saveState();
 
     // calculate the time to wait
     const words = document
